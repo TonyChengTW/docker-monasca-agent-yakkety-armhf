@@ -9,7 +9,8 @@ COPY startup.sh /root
 
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections \
         && apt-get update \
-        && apt-get install -y vim wget curl git python python-dev
+        && apt-get install -y vim wget curl git python python-dev python-pip \
+        && apt-get install -y libxml2-dev libxslt1-dev python-lxml zlib1g-dev
 
 RUN echo '#!/bin/sh' > /usr/sbin/policy-rc.d \
 	&& echo 'exit 101' >> /usr/sbin/policy-rc.d \
@@ -32,7 +33,11 @@ RUN echo '#!/bin/sh' > /usr/sbin/policy-rc.d \
 # enable the universe
 RUN sed -i 's/^#\s*\(deb.*universe\)$/\1/g' /etc/apt/sources.list
 
-RUN apt-get update && apt-get -y upgrade && apt-get autoremove && apt-get clean
+#RUN apt-get update && apt-get -y upgrade && apt-get autoremove && apt-get clean
+RUN apt-get update && apt-get autoremove && apt-get clean
+
+# install monasca-agent
+RUN pip install monasca-agent
 
 # overwrite this with 'CMD []' in a dependent Dockerfile
 ENTRYPOINT ["/root/startup.sh"]
